@@ -1,6 +1,7 @@
 (function(){
 	var ctx,
 		requestAnimationFrame = window.requestAnimationFrame || function(callback){ window.setInterval(callback, 100 / 6); },
+		previousTimestamp = Infinity,
 		iterations = 0,
 
 		cells = [],
@@ -49,7 +50,7 @@
 		}
 	}
 
-	function run(){
+	function run(timestamp){
 		/**
 		 * RULES:
 		 * 1. Any live cell with fewer than two live neighbours dies, as if caused by under-population.
@@ -61,12 +62,14 @@
 			newCells;
 
 		if (window.stopped) {
-			window.iterations = iterations;
 			return;
 		}
 
-		++iterations;
 		requestAnimationFrame(run);
+
+		document.title = 'I: ' + (iterations++) + ' FPS: ' + Math.round(1/(timestamp - previousTimestamp)*1000);
+		previousTimestamp = timestamp;
+
 		draw();
 
 		newCells = [];
