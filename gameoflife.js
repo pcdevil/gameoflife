@@ -77,13 +77,14 @@
 
 				for (i=-1; i<2; ++i) {
 					x2 = x+i;
-					x2 = x2 < 0 ? width - 1 : (x2 > width - 1 ? 0 : x2);
 
 					for (j=-1; j<2; ++j) {
 						y2 = y+j;
-						y2 = y2 < 0 ? height - 1 : (y2 > height - 1 ? 0 : y2);
 
-						liveNeigbours += cells[x2][y2];
+						if (x2 > -1 && x2 < width && y2 > -1 && y2 < height) {
+							liveNeigbours += cells[x2][y2];
+						}
+
 					}
 				}
 
