@@ -1,7 +1,11 @@
 (function(){
 	var ctx,
-		requestAnimationFrame = window.requestAnimationFrame || function(callback){ window.setInterval(callback, 100 / 6); },
-		previousTimestamp = Infinity,
+		requestAnimationFrame = window.requestAnimationFrame || function(callback){
+			window.setTimeout(function(){
+				callback((new Date()).getTime());
+			}, 1000 / 60);
+		},
+		previousTimestamp = 0,
 		iterations = 0,
 
 		cells = [],
@@ -36,7 +40,7 @@
 
 		ctx.clearRect(0,0,width*scale,height*scale);
 
-		run();
+		run(0);
 	}
 
 	function draw(){
