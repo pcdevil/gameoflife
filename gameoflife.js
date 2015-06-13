@@ -1,18 +1,21 @@
 (function(){
-	var ctx,
+	var x, y, x2, y2, i, j,
+		intervalId,
+		cycleDelay = 50,
+		iterations = 0,
+
+		cells = [],
+		width = 300,
+		height = 300,
+
+		ctx,
 		requestAnimationFrame = window.requestAnimationFrame || function(callback){
 			window.setTimeout(function(){
 				callback((new Date()).getTime());
 			}, 1000 / 60);
 		},
 		previousTimestamp = 0,
-		iterations = 0,
-
-		cells = [],
-		width = 100,
-		height = 100,
-		scale = 3,
-		x, y, x2, y2, i, j;
+		scale = 1;
 
 	function init(){
 		var _canvas = document.createElement('canvas');
@@ -38,13 +41,16 @@
 			}
 		}
 
-		ctx.clearRect(0,0,width*scale,height*scale);
-
-		run(0);
+		intervalId = setInterval(run, cycleDelay);
+		draw(0);
 	}
 
-	function draw(){
+	function draw(timestamp){
+		document.title = 'I: ' + (iterations++) + ' FPS: ' + Math.round(1/(timestamp - previousTimestamp)*1000);
+		previousTimestamp = timestamp;
+
 		ctx.clearRect(0, 0, width*scale, height*scale);
+
 		for (x=0; x<width; ++x) {
 			for (y=0; y<height; ++y) {
 				if (cells[x][y]) {
@@ -52,9 +58,13 @@
 				}
 			}
 		}
+
+		if (!window.stopped) {
+			requestAnimationFrame(draw);
+		}
 	}
 
-	function run(timestamp){
+	function run(){
 		/**
 		 * RULES:
 		 * 1. Any live cell with fewer than two live neighbours dies, as if caused by under-population.
@@ -66,15 +76,8 @@
 			newCells;
 
 		if (window.stopped) {
-			return;
+			clearInterval(intervalId);
 		}
-
-		requestAnimationFrame(run);
-
-		document.title = 'I: ' + (iterations++) + ' FPS: ' + Math.round(1/(timestamp - previousTimestamp)*1000);
-		previousTimestamp = timestamp;
-
-		draw();
 
 		newCells = [];
 		for (x=0; x<width; ++x) {
