@@ -1,5 +1,6 @@
 (function(){
-	var x, y, x2, y2, i, j,
+	var y, y2, i,
+		x, x2,
 		intervalId,
 		cycleDelay = 50,
 		iterations = 0,
@@ -7,6 +8,11 @@
 		cells = [],
 		width = 300,
 		height = 300,
+		neighbourCells = [
+			[-1, -1], [-1, 0], [-1, 1],
+			[ 0, -1],          [ 0, 1],
+			[ 1, -1], [ 1, 0], [ 1, 1]
+		],
 
 		ctx,
 		requestAnimationFrame = window.requestAnimationFrame || function(callback){
@@ -34,10 +40,11 @@
 		document.body.appendChild(_canvas);
 
 		cells = [];
-		for (x=0; x<width; ++x) {
-			cells[x] = [];
-			for (y=0; y<height; ++y) {
-				cells[x][y] = Math.random() > 0.5;
+		for (y=0; y<height; ++y) {
+			cells[y] = [];
+
+			for (x=0; x<width; ++x) {
+				cells[y][x] = Math.random() > 0.5;
 			}
 		}
 
@@ -51,9 +58,9 @@
 
 		ctx.clearRect(0, 0, width*scale, height*scale);
 
-		for (x=0; x<width; ++x) {
-			for (y=0; y<height; ++y) {
-				if (cells[x][y]) {
+		for (y=0; y<height; ++y) {
+			for (x=0; x<width; ++x) {
+				if (cells[y][x]) {
 					ctx.fillRect(x*scale, y*scale, scale, scale);
 				}
 			}
@@ -80,27 +87,22 @@
 		}
 
 		newCells = [];
-		for (x=0; x<width; ++x) {
-			newCells[x] = [];
-			for (y=0; y<height; ++y) {
+		for (y=0; y<height; ++y) {
+			newCells[y] = [];
+
+			for (x=0; x<width; ++x) {
 				liveNeigbours = 0;
 
-				for (i=-1; i<2; ++i) {
-					x2 = x+i;
+				for (i=0; i<neighbourCells.length; ++i) {
+					y2 = y+neighbourCells[i][0];
+					x2 = x+neighbourCells[i][1];
 
-					for (j=-1; j<2; ++j) {
-						y2 = y+j;
-
-						if (x2 > -1 && x2 < width && y2 > -1 && y2 < height) {
-							liveNeigbours += cells[x2][y2];
-						}
-
+					if (x2 > -1 && x2 < width && y2 > -1 && y2 < height) {
+						liveNeigbours += cells[y2][x2];
 					}
 				}
 
-				liveNeigbours -= cells[x][y];
-
-				newCells[x][y] = liveNeigbours === 3 || liveNeigbours === 2 && cells[x][y];
+				newCells[y][x] = liveNeigbours === 3 || liveNeigbours === 2 && cells[y][x];
 			}
 		}
 
