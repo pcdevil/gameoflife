@@ -6,8 +6,8 @@
 		iterations = 0,
 
 		cells = [],
-		width = 300,
-		height = 300,
+		width = 200,
+		height = 200,
 		neighbourCells = [
 			[-1, -1], [-1, 0], [-1, 1],
 			[ 0, -1],          [ 0, 1],
@@ -23,7 +23,18 @@
 		previousTimestamp = 0,
 		scale = 1;
 
-	function init(){
+	function createCells(){
+		cells = [];
+		for (y=0; y<height; ++y) {
+			cells[y] = [];
+
+			for (x=0; x<width; ++x) {
+				cells[y][x] = Math.random() > .5;
+			}
+		}
+	}
+
+	function createCanvas(){
 		var _canvas = document.createElement('canvas');
 
 		ctx = _canvas.getContext && _canvas.getContext('2d');
@@ -38,22 +49,25 @@
 		_canvas.style.height = height * scale + 'px';
 
 		document.body.appendChild(_canvas);
+	}
 
-		cells = [];
-		for (y=0; y<height; ++y) {
-			cells[y] = [];
-
-			for (x=0; x<width; ++x) {
-				cells[y][x] = Math.random() > 0.5;
-			}
-		}
+	function init(){
+		createCells();
+		createCanvas();
 
 		intervalId = setInterval(run, cycleDelay);
-		draw(0);
+
+		if (ctx) {
+			draw(0);
+		}
 	}
 
 	function draw(timestamp){
-		document.title = 'I: ' + (iterations++) + ' FPS: ' + Math.round(1/(timestamp - previousTimestamp)*1000);
+		if (!window.stopDraw) {
+			requestAnimationFrame(draw);
+		}
+
+		document.title = 'I: ' + iterations + ' FPS: ' + Math.round(1/(timestamp - previousTimestamp)*1000);
 		previousTimestamp = timestamp;
 
 		ctx.clearRect(0, 0, width*scale, height*scale);
@@ -64,10 +78,6 @@
 					ctx.fillRect(x*scale, y*scale, scale, scale);
 				}
 			}
-		}
-
-		if (!window.stopped) {
-			requestAnimationFrame(draw);
 		}
 	}
 
@@ -82,7 +92,7 @@
 		var liveNeigbours,
 			newCells;
 
-		if (window.stopped) {
+		if (window.stopIteration) {
 			clearInterval(intervalId);
 		}
 
@@ -107,6 +117,7 @@
 		}
 
 		cells = newCells;
+		++iterations;
 	}
 
 	init();
