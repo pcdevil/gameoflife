@@ -6,8 +6,8 @@
 		iterations = 0,
 
 		cells = [],
-		width = 200,
-		height = 200,
+		width = 10,
+		height = 10,
 		neighbourCells = [
 			[-1, -1], [-1, 0], [-1, 1],
 			[ 0, -1],          [ 0, 1],
@@ -21,17 +21,15 @@
 			}, 1000 / 60);
 		},
 		previousTimestamp = 0,
-		scale = 1;
+		scale = 10;
 
 	function createCells(){
 		cells = [];
 		for (y=0; y<height; ++y) {
-			cells[y] = [];
-
-			for (x=0; x<width; ++x) {
-				cells[y][x] = Math.random() > .5;
-			}
+			cells[y] = Math.round(Math.random() * (1 << width));
 		}
+
+		window.cells = cells;
 	}
 
 	function createCanvas(){
@@ -74,7 +72,7 @@
 
 		for (y=0; y<height; ++y) {
 			for (x=0; x<width; ++x) {
-				if (cells[y][x]) {
+				if (cells[y] & (1 << x)) {
 					ctx.fillRect(x*scale, y*scale, scale, scale);
 				}
 			}
@@ -98,7 +96,7 @@
 
 		newCells = [];
 		for (y=0; y<height; ++y) {
-			newCells[y] = [];
+			newCells[y] = 0;
 
 			for (x=0; x<width; ++x) {
 				liveNeigbours = 0;
@@ -108,11 +106,13 @@
 					x2 = x+neighbourCells[i][1];
 
 					if (x2 > -1 && x2 < width && y2 > -1 && y2 < height) {
-						liveNeigbours += cells[y2][x2];
+						liveNeigbours += (cells[y2] & (1 << x2)) > 0;
 					}
 				}
 
-				newCells[y][x] = liveNeigbours === 3 || liveNeigbours === 2 && cells[y][x];
+				if (liveNeigbours === 3 || liveNeigbours === 2 && cells[y] & (1 << x)) {
+					newCells[y] |= 1 << x;
+				}
 			}
 		}
 
